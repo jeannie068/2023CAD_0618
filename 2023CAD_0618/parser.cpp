@@ -46,7 +46,7 @@ void parser()
     for(int i=0; i<fixedModule_num; i++){
         FixedModule_struct newModule;
         inFile >> newModule.name >> newModule.x >> newModule.y >> newModule.width >> newModule.height;
-        ofs_matlab << newModule.name <<" "<< newModule.x <<" "<<  newModule.y << " "<< newModule.width <<" "<<  newModule.height<<endl;
+        //ofs_matlab << newModule.name <<" "<< newModule.x <<" "<<  newModule.y << " "<< newModule.width <<" "<<  newModule.height<<endl;
         matlab_module_num++;
         newModule.coordinate.push_back({newModule.x, newModule.y});
         newModule.coordinate.push_back({newModule.x+newModule.width, newModule.y});
