@@ -1,5 +1,5 @@
 # Fixed-Outline-Floorplanning-Optimization-Tool
-Full Paper Link: https://drive.google.com/file/d/1H9TPorSXNsspAgd3L_lMhQT7FGIEAQ3x/view?usp=drive_link
+Full Paper Link: [Full Paper](https://drive.google.com/file/d/1H9TPorSXNsspAgd3L_lMhQT7FGIEAQ3x/view?usp=drive_link)
 
 此為我們開發的一新穎的固定輪廓平面佈局優化工具，藉由決定模組外形及位置來降低晶片總線長，找尋Physical Design中平面規劃的最佳解決方案。
 
@@ -27,7 +27,8 @@ Full Paper Link: https://drive.google.com/file/d/1H9TPorSXNsspAgd3L_lMhQT7FGIEAQ
 
 ---
 ### 評估目標值算法
-![image](https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/bdf2f813-843b-43e6-b4fd-acded08c3d26)
+
+<img width="420" alt="截圖 2024-02-27 下午5 05 55" src="https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/7b4507fb-b543-4a05-bbcb-30acae6d80e2">
 
 ---
 ## 資料夾說明
@@ -49,26 +50,52 @@ case01 graph示意圖
 ## 演算法
 我們構想的演算法主要由五個階段構成，包括建立 graph、建立 circular-contour、分析可擺置面積比例、Close-packing Algorithm、Force-directed Algorithm。
 流程圖如下所示:
-![image](https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/0e94c3fc-64b8-4d30-be87-abb154e29dd4)
+
+<img width="413" alt="截圖 2024-02-27 下午5 02 42" src="https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/740d99fc-f256-4192-8687-1de91617f517">
 
 ### 分析模組擺置面積佔比
 在此階段，計算公式如(3)式所示。
-![image](https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/5db8f3de-b77a-4ef2-96f7-8d1db49b6e0a)
+
+<img width="395" alt="截圖 2024-02-27 下午5 02 09" src="https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/50aee3e8-5557-4439-9898-0e7d16814ef7">
 
 
 當此比例大於 80%，我們將劃分此電路為高佔比電路，否則為低佔比電路，而分析晶片結果如下所示，其中藍色、黃色矩形分別標示為固定外形、可變外形模組。
-![image](https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/93ea0a4f-e454-42cd-acbb-f6105867a37a)
+
+<img width="387" alt="截圖 2024-02-27 下午5 01 44" src="https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/b2bb441c-b570-49eb-a7a5-d39d9f19889d">
 
 ### Close-packing Algorithm
 此階段流程圖如下所示
-![image](https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/eddd0471-895e-4fe7-81d6-3b34de698fed)
+<img width="213" alt="截圖 2024-02-27 下午5 01 20" src="https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/cce3953b-f8ac-4f76-a887-1dc84a5f641e">
+
 
 
 在模組擺置階段，操作示意圖如下所示
 
-![image](https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/55d83cbb-57f9-4196-8738-7e61ef4a5ca6)
+<img width="422" alt="截圖 2024-02-27 下午5 00 20" src="https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/318fbfe3-a7e5-4ee6-8fad-0160879e1377">
 
 
+## 待處理issue
+### Force-directed Algorithm
+在 Force-directed Algorithm 中我們採用 [2] 中所提出的兩階段式平面規劃法，由全域分佈階段及合法化階段所構成。在全域分佈階段中，我們利用 [3] 中的數學解析模型 將模組均勻地散佈在晶片輪廓內。流程圖如下
+
+<img width="405" alt="截圖 2024-02-27 下午4 51 11" src="https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/f05a92ca-fdf4-4d29-8383-7a1bcf5d99bf">
+
+因面積較大模組所接收之力相比面積小模組較大，從而導致大模組相較小模組擴散速度太快，因此我們我們根據晶片面積，將其分割為數塊等大小之單位面積，並將模組之力大小根據模組所佔單位面積數量進行調整，使力的大小能更平均的分佈，提升優化效果。此外，我們將在每次計算力矢量時動態調整權重，以快速擴散模組且達到好的擴散效果。
+我們希望單一可變形模組擺置時能有矩形外的外形解答，以有效利用晶片面積，降低死區形成比例，因此進行擴散力計算及模組擴散時，我們將模組之最小面積限制的 1.3 倍、高寬比例 1 設為此模組擴散的邊界外框，預期透過 analytical placement 會產生大量重疊的性質，將矩形外框內未重疊部分 視作該模組的外形變化。因此我們終止此階段繼續迭代的擴散指標採用 Klee 的度量計算法 [4], [5]，此算法大約可在電路剩餘 30%至 35%的重疊情況下結束，並進到下一合法化階段。
+預期實作示意圖如下
+
+<img width="423" alt="截圖 2024-02-27 下午4 52 19" src="https://github.com/jeannie068/Fixed-Outline-Floorplanning-Optimization-Tool/assets/124335771/ee98c2aa-8e7a-48e6-ad9f-5cd0b7a67dd8">
+
+## Reference
+[1] C.-H. Chiou, C.-H. Chang, S.-T. Chen, and Y.-W. Chang. Circular-contour- based obstacle-aware macro placement. In Proceedings of IEEE/ACM Asia and South Pacific Design Automation Conference, pages 172–177, 2016.
+
+[2] Kai-Chung Chan, Chao-Jam Hsu, and Jia-Ming Lin. A Flexible Fixed-outline Floorplanning Methodology for Mixed-size Modules. 2013 18th Asia and South Pacific Design Automation Conference (ASP-DAC), Yokohama, Japan, 2013, doi: 10.1109/ASPDAC.2013.6509635.
+
+[3] Andrew Kennings, and Kristofer P. Vorwerk. Force-Directed Methods for Generic Placement. IEEE TCAD, VOL. 25, NO. 10, OCTOBER 2006.
+
+[4] M. H. Overmars and C.-K. Yap, “New upper bounds in Klee’s measure problem,” SIAM J. Comput., vol. 20, no. 6, pp. 1034– 1045, Dec. 1991.
+
+[5] J. L. Bentley, “Algorithms for Klee’s rectangle problems,” Comput. Sci. Dept., Carnegie-Mellon Univ., Pittsburgh, Tech. Rep., 1977.
 
 
 
